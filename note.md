@@ -314,3 +314,507 @@ export default class Watermark {
     }
   },
 ```
+
+## 隐藏滚动条
+```javascript
+//给某个元素添加样式类名即可
+
+/*隐藏滚动条兼容谷歌*/
+.scrollbar-overflow::-webkit-scrollbar {
+  display: none; //兼容谷歌
+}
+
+/*隐藏滚动条兼容IE10+,兼容火狐*/
+.scrollbar-overflow {
+  scrollbar-width: none; //兼容火狐
+  -ms-overflow-style: none; //兼容IE10
+}
+```
+
+## 引入阿里字体图标库
+```javascript
+// 采用的是Symbol引入
+//1.首先建立项目，在入口html文件中引入js文件
+   <script src="//at.alicdn.com/t/font_2110606_zqppu0vf3lj.js"></script>
+//2. 再在全局css中引入样式，即：
+  .icon {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.15em;
+  fill: currentColor;
+  overflow: hidden;
+}
+//3.在元素中使用
+<svg class="icon" aria-hidden="true">
+  <use xlink:href="#icon-keyongyue" />
+</svg>
+```
+## 页面滚动到底部
+```javascript
+    // 容器滚动到底部
+    // val = {
+    // id : 'xx',
+    // scrollBottom:function(options){},
+    // scrollTop:function(options){},
+    // }
+  containerScroll(val) {
+    const el = document.getElementById(val.id); //获取节点
+    el.onscroll = function () {
+      var nScrollHight = el.scrollHeight; //滚动距离总长(注意不是滚动条的长度)
+      var nScrollTop = el.scrollTop; //滚动到的当前位置
+      var nDivHight = el.offsetHeight; //容器高度
+      //滚动到顶部
+      if (nScrollTop + nDivHight >= nScrollHight) {
+        val.scrollBottom && val.scrollBottom({
+          scrollHight: nScrollHight,
+          scrollTop: nScrollTop,
+          el: el
+        });
+        return
+      }
+      //滚动到底部
+      if (nScrollTop == 0) {
+        val.scrollTop && val.scrollTop({
+          scrollHight: nScrollHight,
+          scrollTop: nScrollTop,
+          el: el
+        });
+        return
+      }
+
+    }
+  },
+```
+
+## 通过生日算年龄
+```javascript
+ /**
+   * 通过生日算年龄
+   * @param {Date} strBirthday 
+   */
+  jsGetAge(strBirthday) {
+    let Birthday = new Date(strBirthday);
+    var returnAge;
+    var birthYear = Birthday.getFullYear();
+    var birthMonth = Birthday.getMonth() + 1;
+    var birthDay = Birthday.getDay();
+
+    let d = new Date();
+    var nowYear = d.getFullYear();
+    var nowMonth = d.getMonth() + 1;
+    var nowDay = d.getDate();
+
+    if (nowYear == birthYear) {
+      returnAge = 0; //同年 则为0岁
+    } else {
+      var ageDiff = nowYear - birthYear; //年之差
+      if (ageDiff > 0) {
+        if (nowMonth == birthMonth) {
+          var dayDiff = nowDay - birthDay; //日之差
+          if (dayDiff < 0) {
+            returnAge = ageDiff - 1;
+          } else {
+            returnAge = ageDiff;
+          }
+        } else {
+          var monthDiff = nowMonth - birthMonth; //月之差
+          if (monthDiff < 0) {
+            returnAge = ageDiff - 1;
+          } else {
+            returnAge = ageDiff;
+          }
+        }
+      } else {
+        returnAge = -1; //返回-1 表示出生日期输入错误 晚于今天
+      }
+    }
+    return returnAge; //返回周岁年龄
+  }
+```
+
+## 获取明天时间
+```javascript
+  /**
+   * 获取明天时间
+   * @param {Number} AddDayCount 
+   */
+  getTomorrow(AddDayCount) {
+    var dd = new Date();
+    dd.setDate(dd.getDate() + AddDayCount); //获取AddDayCount天后的日期
+    var y = dd.getFullYear();
+    var m = dd.getMonth() + 1; //获取当前月份的日期
+    var d = dd.getDate();
+    return y + "-" + m + "-" + d;
+  },
+```
+
+## 下载文件  
+```javascript
+ /**
+   * 下载文件 此处为了防止下载时有些文件格式出问题，所以采用ajax方式下载
+   * @param {String} url 
+   * @param {String} fileName 
+   */
+  download(url, fileName) {
+    var x = new XMLHttpRequest();
+    const that= this;
+    url = that.transferUrl(url);
+    x.open("GET", url, true);
+    x.responseType = "blob";
+    x.onload = function (e) {
+      var url = window.URL.createObjectURL(x.response);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = fileName ? fileName : "未命名";
+      a.click();
+    };
+    x.send();
+  },
+  //处理url，将http装换成https
+  transferUrl(url){
+    let httpHead = url.substring(0,6); 
+    let finallytUrl= url.slice(6);
+    if(!(/s/.test(httpHead))){  
+        httpHead =httpHead.slice(0,4)+'s'+httpHead.slice(4)  
+    } 
+    return httpHead + finallytUrl;
+  },
+```
+
+## 添加水印
+```javascript
+  // 添加水印
+  addShuiyin(obj) {
+    const img = new Image();
+    img.src = obj.url;
+    img.crossOrigin = "anonymous";
+    img.onload = function () {
+      const canvas = document.createElement("canvas");
+      let _ix = img.width;
+      let _iy = img.height;
+      canvas.width = _ix;
+      canvas.height = _iy;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+      ctx.textAlign = obj.textAlign;
+      ctx.textBaseline = obj.textBaseline;
+      ctx.font = obj.font;
+      ctx.fillStyle = obj.fillStyle;
+      ctx.translate(0, 0);
+      ctx.rotate((-20 * Math.PI) / 180); //旋转角度
+      //水印密度
+      for (let i = 0; i < _iy / 130; i++) {
+        for (let j = 0; j < _ix / 50; j++) {
+          ctx.fillText(obj.content, i * 240, j * 50, _ix);
+        }
+      }
+      const base64Url = canvas.toDataURL()
+      obj.cb && obj.cb(base64Url);
+    };
+  }
+```
+
+## vue图片懒加载
+```javascript
+  //1.安装
+ // cnpm install vue-lazyload --save-dev
+ // 2.main.js加载
+import VueLazyLoad from 'vue-lazyload'
+Vue.use(VueLazyload, {
+  preLoad: 1, //预加载高度的比例
+  error: '', //图像的src加载失败
+  loading: '', //src的图像加载
+  attempt: 1, //尝试计数
+  listenEvents: ['scroll', 'mousewheel'] //你想要监听的事件,我个人喜欢全部监听，方便
+});
+//3.组件中使用
+<img v-lazy="url" alt="" style="width: 768px;"> 
+```
+ 
+## element-ui引入使用
+```javascript
+//部分引入  main.js中进行
+ import 'element-ui/lib/theme-chalk/index.css'
+import {
+  Input,
+  Button,
+  Option,
+  OptionGroup,
+  MenuItem,
+  MenuItemGroup,
+  Select,
+  Form,
+  FormItem,
+  Upload,
+  DatePicker,
+  Rate,
+  Message,
+  Radio,
+  RadioGroup,
+  TimePicker,
+  Checkbox,
+  CheckboxGroup,
+  Collapse,
+  CollapseItem,
+  Table,
+  TableColumn,
+  MessageBox,
+  Dialog,
+  Backtop,
+  Icon,
+  Tabs,
+  TabPane,
+  InputNumber,
+  Autocomplete,
+  DropdownItem,
+  DropdownMenu,
+  Dropdown,
+  Badge,
+  Notification,
+  Switch,
+  Progress,
+  Cascader,
+  Popover
+} from 'element-ui'
+//注意此时message得单独引入
+Message.install = function (Vue, options) {
+  Vue.prototype.$message = Message
+}
+MessageBox.install = function (Vue, options) {
+  Vue.prototype.$MessageBox = MessageBox
+}
+Notification.install = function (Vue, options) {
+  Vue.prototype.$Notification = Notification
+}
+// 引入后得vue进行use挂载
+Vue.use(Input)
+Vue.use(Button)
+Vue.use(Option)
+Vue.use(OptionGroup)
+Vue.use(MenuItem)
+Vue.use(MenuItemGroup)
+Vue.use(Select)
+Vue.use(Form)
+Vue.use(FormItem)
+Vue.use(Upload)
+Vue.use(DatePicker)
+Vue.use(Rate)
+Vue.use(Message)
+Vue.use(Radio)
+Vue.use(RadioGroup)
+Vue.use(TimePicker)
+Vue.use(Checkbox)
+Vue.use(CheckboxGroup)
+Vue.use(Collapse)
+Vue.use(CollapseItem)
+Vue.use(Table)
+Vue.use(TableColumn)
+Vue.use(MessageBox)
+Vue.use(Dialog)
+Vue.use(Backtop)
+Vue.use(Icon)
+Vue.use(Tabs)
+Vue.use(TabPane)
+Vue.use(InputNumber)
+Vue.use(Autocomplete)
+Vue.use(DropdownItem)
+Vue.use(DropdownMenu)
+Vue.use(Dropdown)
+Vue.use(Badge)
+Vue.use(Notification)
+Vue.use(Switch)
+Vue.use(Progress)
+Vue.use(Cascader)
+Vue.use(Popover)
+```
+
+## axios的请求用法
+```javascript
+//get 请求
+// 为给定 ID 的 user 创建请求
+axios.get('/user?ID=12345')
+  .then(function (response) {
+    console.log(response);
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
+
+// 上面的请求也可以这样做
+axios.get('/user', {
+    params: {
+      ID: 12345
+    }
+  })
+  .then(function (response) {
+    console.log(response);
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
+
+  // post请求
+  axios.post('/user', {
+    firstName: 'Fred',
+    lastName: 'Flintstone'
+  })
+  .then(function (response) {
+    console.log(response);
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
+
+  //多个并发请求
+  function getUserAccount() {
+  return axios.get('/user/12345');
+}
+
+function getUserPermissions() {
+  return axios.get('/user/12345/permissions');
+}
+
+axios.all([getUserAccount(), getUserPermissions()])
+  .then(axios.spread(function (acct, perms) {
+    // 两个请求现在都执行完成
+  }));
+  //axios.all([axios.get('url1'),axios.get('url2')]).then(axios.spead(res1,res2)={
+ //  这里执行两个请求都完成的处理 
+ // })
+```
+
+## axios请求、响应拦截
+```javascript
+//首先进行npm install
+  import Axios from 'axios'
+  import Vue from 'vue'
+Axios.defaults.baseURL = 'https://www.xxx.xx'; //配置公共域名
+Axios.defaults.headers.post['Content-Type'] = 'application/json;charset=utf-8'; //设置请求参数格式
+// 请求拦截
+Axios.interceptors.request.use(function(config){
+  //成功阶段做的事
+  //例如对参数进行统一处理
+ let config = {
+    ...config,
+    params:{
+        appkey:'xxxxx',
+    }
+  };
+  // 还可以判断缓存中是否有token,如果存在则每次请求带上token
+  if(localStorage.getItem('xxToken')){
+     config.headers.Authorization = "Bearer " + JSON.parse(localStorage.getItem("FuChengToken")).token; // 设置请求头
+  }
+  
+  return config;  //最后记得返回config
+},function(error){
+  //失败阶段做的事
+  //例如，若此时挂载了elementui，
+  Vue.prototype.$message({
+    message:'系统服务器维护中',
+    type:'w0000arning'
+  })
+})
+
+// 响应拦截
+Axios.interceptors.response.use(function (config) {
+  // 下面的功能都是可选的。根据实际需求进行删减。
+  endLoading() //关闭loading框
+  if (config.data.message == 'The access token is invalid!!!' && config.data.code === 3000) {
+    Vue.prototype.$message({
+      message: '登录已过期!请重新登录',
+      type: 'warning'
+    })
+    Util.loginOut(); //退出登录
+    return
+  }
+  return config;
+}, function (error) {
+  // 捕获响应出错
+  Vue.prototype.$message({
+    message: '系统服务器维护中...',
+    type: 'warning'
+  })
+  endLoading() //关闭loading框
+  // 对响应错误做些什么
+  return Promise.reject(error);
+});
+export default {
+  //对axios进行处理，这样调用的时候可以统一格式调用
+  install(Vue, options) {
+    Vue.prototype.post = function (url, data, callBack) {
+        Axios.post(url, JSON.stringify({
+            ...data
+          })).then(res => {
+            callBack && callBack(res)
+          })
+          .catch(error => {
+
+          })
+      },
+      Vue.prototype.get = function (url, data, callBack) {
+        Axios.get(url, {
+            params: {
+              ...data
+            }
+          }, ).then(res => {
+            //请求成功返回的值
+            callBack && callBack(res)
+          })
+          .catch(error => {
+
+          })
+      },
+      Vue.prototype.arrPost = function (url, data, callBack) {
+        Axios.post(url, JSON.stringify(data)).then(res => {
+            callBack && callBack(res)
+          })
+          .catch(error => {
+
+          })
+      }
+  }
+}
+// 定义loading
+let loading;
+// 打开loading框
+function startLoading() { //使用Element loading-start 方法。注意这里得进行import { Loading } from element-ui
+  loading = Loading.service({
+    lock: true,
+    text: '加载中……',
+    background: 'rgba(0, 0, 0, 0.5)'
+  })
+}
+// 关闭loading框
+function endLoading() {
+  loading.close()
+}
+
+
+//在main.js中进行挂载
+import service from 'axios/index.js'
+vue.use(service);
+//同时还可以在Vue原型上进行二次挂载，这里导入的axios依旧有拦截.
+vue.prototype.$axios = axios //这里的axios为 import axios from 'axios' 导入
+
+
+
+//例子， requset调用。工具API调用
+// 获取待审核，草稿
+getAuditList(obj) {
+  Vue.prototype.get(Api.b_Api.audit_list, {
+    status: obj.status
+  }, res => {
+    obj.success && obj.success(res)
+  })
+},
+// 任务保存为草稿
+tasksDraft(obj) {
+  Vue.prototype.post(Api.b_Api.tasks_draft, {
+    ...obj.data
+  }, res => {
+    obj.success && obj.success(res)
+  })
+},
+
+```
+
