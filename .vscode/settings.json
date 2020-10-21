@@ -1,0 +1,16 @@
+{
+    "markdown-preview-enhanced.mathInlineDelimiters": [
+
+        [
+            "$",
+            "$"
+        ],
+        [
+            "\\(",
+            "\\)"
+        ]
+    ],
+    "[markdown]":  {
+        "editor.quickSuggestions": true
+      }
+}

@@ -1,4 +1,4 @@
-[top]
+[toc]
 ## 百度地图API获取地点
 ```javascript
 //  方法一 
@@ -329,6 +329,22 @@ export default class Watermark {
   scrollbar-width: none; //兼容火狐
   -ms-overflow-style: none; //兼容IE10
 }
+//代码如下；在app.vue中。也可以直接将下面的#app换成html
+html,
+body {
+  height: 100%;
+  min-width: 1280px;
+}
+#app {
+  width: 100%;
+  height: 100%;
+  overflow-y: scroll;
+  scrollbar-width: none; //兼容火狐
+  -ms-overflow-style: none; //兼容IE10
+}
+#app::-webkit-scrollbar {
+  display: none;
+}
 ```
 
 ## 引入阿里字体图标库
@@ -534,7 +550,9 @@ Vue.use(VueLazyload, {
 ## element-ui引入使用
 ```javascript
 //部分引入  main.js中进行
- import 'element-ui/lib/theme-chalk/index.css'
+import ElementUI from 'element-ui';
+import 'element-ui/lib/theme-chalk/index.css';
+Vue.use(ElementUI)
 import {
   Input,
   Button,
@@ -818,3 +836,193 @@ tasksDraft(obj) {
 
 ```
 
+## vue中动态设置各路由的页面title
+```javascript
+  //在vue的main.js中进行全局路由判断
+  router.beforeEach(to,from,next){
+    document.title = to.meta.title?to.meta.title:'自给'; // 这里需要在路由中添加路由元数据
+  }
+```
+
+## pdf预览和下载
+```javascript
+  //若是本地直接预览，要注意src的地址，要把 pdf文件放在public/static/xx.pdf这里，但在src='/static/xx.pdf'，注意为绝对路径，public不写
+```
+
+## 图片预览工具
+```javascript
+  // npm install v-viewer --save 进行安装后，在main.js中全局加载引入
+  import Viewer from 'v-viewer'
+import 'viewerjs/dist/viewer.css'
+Vue.use(Viewer)
+Viewer.setDefaults({
+  Options: {
+    inline: true,
+    button: false,
+    navbar: true,
+    title: true,
+    toolbar: true,
+    tooltip: true,
+    movable: true,
+    zoomable: true,
+    rotatable: true,
+    scalable: true,
+    transition: true,
+    fullscreen: true,
+    keyboard: true,
+    url: 'data-source'
+  }
+})
+
+//在组件中调用
+// <viewer :images="workSwiperList" @inited="inited" ref="viewer" :index="3">
+//         <img v-for="(src,index) in workSwiperList" :src="src" :key="index" >
+//  </viewer>
+// //可以自定义方法
+//    methods: {
+//     inited (viewer) {
+//       this.$viewer = viewer
+//       this.$viewer.index = this.activeIndex
+// // 不要他的按钮
+//       this.$viewer.options.button = false
+// // 不要他的底部缩略图
+//       this.$viewer.options.navbar = false
+// // 不要他的底部标题
+//       this.$viewer.options.title = false
+// // 不要他的底部工具栏
+//       this.$viewer.options.toolbar = false
+//       this.show()
+//     },
+//   // 调用显示
+//     show () {
+//       this.$viewer.show()
+//     },
+```
+
+## 二维码插件
+```javascript
+  //npm install vue-qr --save
+  import VueQr from 'vue-qr'
+  new Vue({
+      components: {VueQr}
+  })
+/**
+ * text	二维码内容
+ * size	二维码宽高大小，因为是正方形，所以设一个参数即可
+ * margin	默认边距20px，不喜欢的话自己设为0
+ * colorDark	实点的颜色，注意要和colorLight一起设置才有效
+ * colorLight	空白的颜色，注意要和colorDark一起设置才有效
+ * bgSrc	嵌入背景图地址，没什么卵用，不建议设置
+ * logoSrc	二维码中间的图，这个是好东西，设置一下显得专业点
+ * logoScale	中间图的尺寸，不要设太大，太大会导致扫码失败的
+ * dotScale	那些小点点的大小，这个也没什么好纠结的，不建议设置了
+ */
+
+  // <vue-qr :bgSrc='src' :logoSrc="src2" text="Hello world!" :size="200"></vue-qr>
+  // <vue-qr text="Hello world!" :callback="test" qid="testid"></vue-qr>
+
+  // methods:{
+  //   test(dataUrl,id){
+  //     console.log(dataUrl,id)
+  //   }
+  // }
+
+  // //案例
+  //   <vue-qr
+  //     :logo-src="data.logoSrc ? data.logoSrc : ''"
+  //     :size="data.size"
+  //     :margin="0"
+  //     :auto-color="true"
+  //     :dot-scale="1"
+  //     :text="data.appSrc ? data.appSrc : ''"
+  //   />
+```
+
+## 富文本编辑器
+```javascript
+// npm install vue-quill-editor --save
+import { quillEditor } from 'vue-quill-editor'
+
+//在component中调用
+components:{
+  QuillEditor
+}
+```
+## eslint关闭严格模式
+```javascript
+// 有多个方法，选择使用
+// 在vue.config.js中关闭
+module.exports = {
+  lintOnSave: false
+};
+
+
+// 在vscode插件中关闭
+    "eslint.validate": [ // 添加 vue 支持
+        "javascript",
+        "javascriptreact",
+        {
+          "language": "vue",
+          "autoFix": true
+        }
+     ],
+     "eslint.enable":false //主要是这个，前面的不确定有没有用，写上再说
+
+
+//在vue项目中关闭
+// 全局搜索配置文件，删除有关loader: 'eslint-loader',的配置
+
+
+//下面也是setting.json中的文件内容，看需求
+//     "files.autoSave":"off",
+//     "eslint.validate": [
+//        "javascript",
+//        "javascriptreact",
+//        "html",
+//      ],
+//      "eslint.options": {
+//         "plugins": ["html"]
+//      },
+// // 保存后自动修复格式
+// "editor.codeActionsOnSave": {
+//   "source.fixAll.eslint": true
+// },
+```
+
+## 轮播图
+```javascript
+  //除了使用swiper插件外，还可以使用elementui库的走马灯组件
+  //注意项：1.引入静态资源时，如果用v-for循环遍历，需要使用require路径，不能直接导入路径，否则会显示不出来图片。例如:
+  //下面显示不出来
+  // list:['@/assets/images/banner/banner2.png','@/assets/images/banner/banner3.png','@/assets/images/banner/banner4.png','@/assets/images/banner/banner5.png']
+  //下面显示正确
+    // this.imgList.push(require(`@/assets/images/banner/banner${i}.png`));
+```
+
+## 多行文本溢出打点
+```javascript
+/* 多行文本溢出 */
+.text-overflow_hiden {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  /* 自定义的行数 */
+  overflow: hidden;
+}
+
+/* 溢出隐藏 */
+.overflow {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+```
+
+## vue重复路由跳转报错
+```javascript
+// 在router.js中插入下面代码
+const originalPush = VueRouter.prototype.push;
+VueRouter.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(err => err);
+};
+```
