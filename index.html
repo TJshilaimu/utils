@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .wrap{
+            width:300px;
+            display:flex;
+            flex-wrap: wrap;
+        }
+        .box1,.box2{
+            display: grid;
+            place-items: center;
+            width:100px;
+            height:100px;
+            box-sizing: border-box;
+            border:1px solid red;
+        }
+        .item{
+            margin:-1px 0 0 -1px;
+        }
+        .item:nth-child(3n+1){
+            margin-left:0;
+        }
+        .item:nth-of-type(-n+3){
+            margin-top: 0;
+        }
+        .item:hover{
+            border-color: greenyellow;
+            z-index:1
+        }
+        .box2{
+            /* border-color: greenyellow;
+            margin-left:-3px; */
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap" onclick="test(event)">
+        <div class="box1 item">1</div>
+        <div class="box2 item">2</div>
+        <div class="box1 item">1</div>
+        <div class="box2 item">2</div><div class="box1 item">1</div>
+        <div class="box2 item">2</div><div class="box1 item">1</div>
+        <div class="box2 item">2</div>
+        <div class="box2 item">2</div>
+
+    </div>
+    <script>
+    //  let dom = document.getElementsByClassName('wrap')[0];
+    //  dom.onclick=function(e){
+    //      console.log('ok',e.target)
+    //  }
+    function test(e){
+        console.log(e)
+    }
+    </script>
+</body>
+</html>
